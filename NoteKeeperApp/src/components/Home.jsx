@@ -1,6 +1,5 @@
-import { isFluxStandardAction } from '@reduxjs/toolkit';
-import React, { useState } from 'react'
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { addNote, updateNote } from '../redux/slice';
 
@@ -10,7 +9,21 @@ const Home = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const noteID = searchParams.get("noteID")
 	const dispatch = useDispatch();
+	const allNotes = useSelector((state) => state.note.notes);
 
+	useEffect(() => {
+		if (noteID) {
+			const note = allNotes.find((p) => p._id === noteID);
+			setTitle(note.title)
+			setValue(note.content)
+		}
+		else {
+			setTitle('');
+			setValue('');
+			setSearchParams({});
+		}
+	}, [noteID])
+	
 	function createNote() {
 		const note = {
 			title: title,
@@ -18,6 +31,7 @@ const Home = () => {
 			_id: noteID || Date.now().toString(21),
 			createdAt: new Date().toISOString(),
 		}
+
 		
 		if (noteID) {
 			//update
